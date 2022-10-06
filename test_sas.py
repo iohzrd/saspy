@@ -74,7 +74,7 @@ while True:
         sas.eft_avilable_transfers()
         sas.AFT_game_lock_and_status_request( lock_code=0xff)
         state= binascii.hexlify(bytearray(sas.events_poll()))
-        print state
+        print(state)
         if (state=='51'): #cashout
                 sas.eft_send_promo_to_machine( amount=25, status=a)
 
@@ -85,13 +85,13 @@ while True:
         if (state=='57'): #cashout
                 sas.pending_cashout_info()
                 time.sleep(.5)
-                sas.validation_number( validationID=1, valid_number=int(''.join([random.choice(string.digits) for n in xrange(16)])))
+                sas.validation_number( validationID=1, valid_number=int(''.join([random.choice(string.digits) for n in range(16)])))
                 
                 sas.send_meters_10_15()
-                print main_sas.meters.get('total_in_meter')
-                print main_sas.meters.get('total_out_meter')
+                print(main_sas.meters.get('total_in_meter'))
+                print(main_sas.meters.get('total_out_meter'))
                 sas.current_credits()
-                print main_sas.meters.get('current_credits')
+                print(main_sas.meters.get('current_credits'))
                 
                 #sas.cash_out_ticket_info()
                 
@@ -105,6 +105,6 @@ while True:
         
         time.sleep(1)
 
-for keys, values in tito_statement.items():
+for keys, values in list(tito_statement.items()):
         print(keys)
         print(values)

@@ -227,41 +227,41 @@ class sas(object):
                         #print 1
                         self.connection=serial.Serial(port=port,baudrate=19200, timeout=2)
                 except:
-                        print "port error"
+                        print("port error")
                 return
         def start(self):
-                print 'Connecting SAS...'
+                print('Connecting SAS...')
                 while True:
                         response =self.connection.read(1)
-                        if (response<>''):
+                        if (response!=''):
                                 self.adress=int(binascii.hexlify(response))
                                 if self.adress>=1:
-                                        print 'adress recognised '+str(self.adress)
+                                        print('adress recognised '+str(self.adress))
                                         break
                                 
                         #print str(binascii.hexlifyself.adress))
                         time.sleep(.5)
                 
                 self.gaming_machine_ID()
-                print meters.get('ASCII_game_ID')
-                print meters.get('ASCII_additional_ID')
-                print meters.get('bin_denomination')
-                print meters.get('bin_max_bet')
-                print meters.get('bin_progressive_mode')
-                print meters.get('bin_game_options')
-                print meters.get('ASCII_paytable_ID')
-                print meters.get('ASCII_base_percentage')
+                print(meters.get('ASCII_game_ID'))
+                print(meters.get('ASCII_additional_ID'))
+                print(meters.get('bin_denomination'))
+                print(meters.get('bin_max_bet'))
+                print(meters.get('bin_progressive_mode'))
+                print(meters.get('bin_game_options'))
+                print(meters.get('ASCII_paytable_ID'))
+                print(meters.get('ASCII_base_percentage'))
                 self.SAS_version_gaming_machine_serial_ID()
-                print meters.get('ASCII_SAS_version')
-                print meters.get('ASCII_serial_number')
+                print(meters.get('ASCII_SAS_version'))
+                print(meters.get('ASCII_serial_number'))
                 self.enabled_features() #todo
                 
                 # 7e date_time_add
                 self.AFT_register_gaming_machine(reg_code=0xff)
-                print aft_statement.get('registration_status')
-                print aft_statement.get('asset_number')
-                print aft_statement.get('registration_key')
-                print aft_statement.get('POS_ID')
+                print(aft_statement.get('registration_status'))
+                print(aft_statement.get('asset_number'))
+                print(aft_statement.get('registration_key'))
+                print(aft_statement.get('POS_ID'))
 
                 
                 
@@ -280,13 +280,13 @@ class sas(object):
                                 crc=CRC16Kermit().calculate(str(bytearray(buf_header)))
                                 buf_header.extend([((crc>>8)&0xFF),(crc&0xFF)])
                         #print buf_header
-                        print buf_header
+                        print(buf_header)
                         #print self.connection.portstr
                         #self.connection.write([0x31, 0x32,0x33,0x34,0x35])
                         self.connection.write((buf_header))
                         
                 except Exception as e:
-                        print e
+                        print(e)
 
                 try:
                         buffer = []
@@ -295,11 +295,11 @@ class sas(object):
                         while time.time()-t<timeout:
                                 response +=self.connection.read()
                                 #print binascii.hexlify(response)
-                                if (self.checkResponse(response)<>False):
+                                if (self.checkResponse(response)!=False):
                                         break
 
                         if time.time()-t>=timeout:
-                                print "timeout waiting response"
+                                print("timeout waiting response")
                                 #buffer.append(response)
                                 #print binascii.hexlify(bytearray(response))
                                 return None
@@ -308,20 +308,20 @@ class sas(object):
                         return self.checkResponse(response)
                         #return None
                 except Exception as e:
-                        print e
+                        print(e)
 
                 busy = False
                 return None
 
         def checkResponse(self, rsp):
                 if (rsp==''):
-                        print 'not response'
+                        print('not response')
                         return False
 		
                 resp = bytearray(rsp)
                 #print resp
-                if (resp[0]<>self.adress):
-                        print "wrong ardess or NACK"
+                if (resp[0]!=self.adress):
+                        print("wrong ardess or NACK")
                         return False
 
                 CRC = binascii.hexlify(resp[-2:])
@@ -346,7 +346,7 @@ class sas(object):
                             #print        "////" + str(hex(crc1).split('x')[-1])
                             #print        "////" + str(binascii.hexlify(command))
                             return False
-                print binascii.hexlify(data)
+                print(binascii.hexlify(data))
                 return data
 ##        def check_crc(self):
 ##                cmd=[0x01, 0x50, 0x81]
@@ -371,7 +371,7 @@ class sas(object):
                         
 
                 except Exception as e:
-                        print e
+                        print(e)
                         return None
                 return event
         
@@ -398,7 +398,7 @@ class sas(object):
                         
 
                 except Exception as e:
-                        print e
+                        print(e)
                         return None
                 return event
         
@@ -445,7 +445,7 @@ class sas(object):
                 #print bytes.fromhex(((s)))
                 cmd.extend(bill_denom)
                 cmd.extend(action_flag)
-                print cmd
+                print(cmd)
                 if (self.__send_command(cmd,True, crc_need=True)[0]==0x80+self.adress):
                         return "True"
                 else:
@@ -456,7 +456,7 @@ class sas(object):
                 cmd=[0x09]
                 cmd.extend(bytearray(game_number))
                 cmd.extend(bytearray(en_dis))
-                print cmd
+                print(cmd)
                 if (self.__send_command(cmd,True, crc_need=True)[0]==0x80+self.adress):
                         return "True"
                 else:
@@ -476,7 +476,7 @@ class sas(object):
                 #0F
                 cmd=[0x0f]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
                         meters['total_cancelled_credits_meter']=int((binascii.hexlify(bytearray(data[1:5]))))
                         meters['total_in_meter']=int(binascii.hexlify(bytearray(data[5:9])))
                         meters['total_out_meter']=int(binascii.hexlify(bytearray(data[9:13])))
@@ -489,7 +489,7 @@ class sas(object):
                 #10
                 cmd=[0x10]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
                         meters['total_cancelled_credits_meter']=int(binascii.hexlify(bytearray(data[1:5])))
                         return data                
                 return ''
@@ -497,7 +497,7 @@ class sas(object):
                 #11
                 cmd=[0x11]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['total_bet_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -507,7 +507,7 @@ class sas(object):
                 #12
                 cmd=[0x12]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['total_win_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -517,7 +517,7 @@ class sas(object):
                 #13
                 cmd=[0x13]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['total_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -527,7 +527,7 @@ class sas(object):
                 #14
                 cmd=[0x14]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['total_jackpot_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -537,7 +537,7 @@ class sas(object):
                 #15
                 cmd=[0x15]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['games_played_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -547,7 +547,7 @@ class sas(object):
                 #16
                 cmd=[0x16]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['games_won_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -557,7 +557,7 @@ class sas(object):
                 #17
                 cmd=[0x17]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['games_lost_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -567,7 +567,7 @@ class sas(object):
                 #18
                 cmd=[0x18]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['games_last_power_up']=int(binascii.hexlify(bytearray(data[1:3])))
                         meters['games_last_slot_door_close']=int(binascii.hexlify(bytearray(data[1:5])))
@@ -578,7 +578,7 @@ class sas(object):
                 #19
                 cmd=[0x19]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
                         meters['total_bet_meter']=int(binascii.hexlify(bytearray(data[1:5])))
                         meters['total_win_meter']=int(binascii.hexlify(bytearray(data[5:9])))
                         meters['total_in_meter']=int(binascii.hexlify(bytearray(data[9:13])))
@@ -590,7 +590,7 @@ class sas(object):
                 #1A
                 cmd=[0x1A]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
                         meters['current_credits']=int(binascii.hexlify(bytearray(data[1:5])))
 
                         return data
@@ -599,7 +599,7 @@ class sas(object):
                 #1B
                 cmd=[0x1B]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['bin_progressive_group']=int(binascii.hexlify(bytearray(data[1:2])))
                         meters['bin_level']=int(binascii.hexlify(bytearray(data[2:3])))
@@ -611,7 +611,7 @@ class sas(object):
                 #1C
                 cmd=[0x1C]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
                         meters['total_bet_meter']=int(binascii.hexlify(bytearray(data[1:5])))
                         meters['total_win_meter']=int(binascii.hexlify(bytearray(data[5:9])))
                         meters['total_in_meter']=int(binascii.hexlify(bytearray(data[9:13])))
@@ -627,7 +627,7 @@ class sas(object):
                 #1E
                 cmd=[0x1E]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
                         meters['s1_bills_accepted_meter']=int(binascii.hexlify(bytearray(data[1:5])))
                         meters['s5_bills_accepted_meter']=int(binascii.hexlify(bytearray(data[5:9])))
                         meters['s10_bills_accepted_meter']=int(binascii.hexlify(bytearray(data[9:13])))
@@ -641,7 +641,7 @@ class sas(object):
                 #1F
                 cmd=[0x1F]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['ASCII_game_ID']=(((data[1:3])))
                         meters['ASCII_additional_ID']=(((data[3:6])))
@@ -660,7 +660,7 @@ class sas(object):
                 cmd=[0x20]
                 data=self.__send_command(cmd,True, crc_need=False)
                 
-                if(data<>''):
+                if(data!=''):
 
                         meters['bill_meter_in_dollars']=int(binascii.hexlify(bytearray(data[1:])))
                         
@@ -671,11 +671,11 @@ class sas(object):
                 
                 cmd=[0x21, 0x00, 0x00]
                 data=self.__send_command(cmd,True, crc_need=True)
-                print data
-                if(data<>None):
+                print(data)
+                if(data!=None):
                  
                         meters['ROM_signature']= int(binascii.hexlify(bytearray(data[1:3])))
-                        print (str(meters.get('ROM_signature')))
+                        print((str(meters.get('ROM_signature'))))
                         return data
                 return False
 
@@ -686,8 +686,8 @@ class sas(object):
                 cmd.append(state)
                 
                 data=self.__send_command(cmd,True, crc_need=True)
-                print data
-                if(data<>None):
+                print(data)
+                if(data!=None):
 
                         return data
                 return ''
@@ -696,7 +696,7 @@ class sas(object):
                 #2A
                 cmd=[0x2A]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['true_coin_in']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -706,7 +706,7 @@ class sas(object):
                 #2B
                 cmd=[0x2B]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['true_coin_out']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -716,7 +716,7 @@ class sas(object):
                 #2C
                 cmd=[0x2C]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['current_hopper_level']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -747,7 +747,7 @@ class sas(object):
                 #31
                 cmd=[0x31]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s1_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -757,7 +757,7 @@ class sas(object):
                 #32
                 cmd=[0x32]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s2_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -767,7 +767,7 @@ class sas(object):
                 #33
                 cmd=[0x33]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s5_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -777,7 +777,7 @@ class sas(object):
                 #34
                 cmd=[0x34]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s10_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -787,7 +787,7 @@ class sas(object):
                 #35
                 cmd=[0x35]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s20_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -797,7 +797,7 @@ class sas(object):
                 #36
                 cmd=[0x36]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s50_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -807,7 +807,7 @@ class sas(object):
                 #37
                 cmd=[0x37]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s100_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -817,7 +817,7 @@ class sas(object):
                 #38
                 cmd=[0x38]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s500_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -827,7 +827,7 @@ class sas(object):
                 #39
                 cmd=[0x39]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s1000_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -837,7 +837,7 @@ class sas(object):
                 #3A
                 cmd=[0x3a]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s200_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -847,7 +847,7 @@ class sas(object):
                 #3B
                 cmd=[0x3B]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s25_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -857,7 +857,7 @@ class sas(object):
                 #3C
                 cmd=[0x3C]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s2000_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -867,7 +867,7 @@ class sas(object):
                 #3D
                 cmd=[0x3D]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         tito_statement['cashout_ticket_number']=int(binascii.hexlify(bytearray(data[1:3])))
                         tito_statement['cashout_amount_in_cents']=int(binascii.hexlify(bytearray(data[3:])))
@@ -878,7 +878,7 @@ class sas(object):
                 #3E
                 cmd=[0x3E]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s2500_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -888,7 +888,7 @@ class sas(object):
                 #3F
                 cmd=[0x3F]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s5000_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -898,7 +898,7 @@ class sas(object):
                 #40
                 cmd=[0x40]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s10000_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -908,7 +908,7 @@ class sas(object):
                 #41
                 cmd=[0x41]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s20000_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -918,7 +918,7 @@ class sas(object):
                 #42
                 cmd=[0x42]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s25000_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -928,7 +928,7 @@ class sas(object):
                 #43
                 cmd=[0x43]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s50000_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -938,7 +938,7 @@ class sas(object):
                 #44
                 cmd=[0x44]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s100000_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -948,7 +948,7 @@ class sas(object):
                 #45
                 cmd=[0x45]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['s250_bills_in_meter']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -959,7 +959,7 @@ class sas(object):
                 
                 cmd=[0x46]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>''):
+                if(data!=''):
 
                         meters['credit_amount_of_all_bills_accepted']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -969,7 +969,7 @@ class sas(object):
                 #47
                 cmd=[0x47]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>None):
+                if(data!=None):
 
                         meters['coin_amount_accepted_from_external_coin_acceptor']=int(binascii.hexlify(bytearray(data[1:5])))
 
@@ -979,7 +979,7 @@ class sas(object):
                 #48
                 cmd=[0x48]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>None):
+                if(data!=None):
                         meters['country_code']=int(binascii.hexlify(bytearray(data[1:2])))
                         meters['bill_denomination']=int(binascii.hexlify(bytearray(data[2:3])))
                         meters['meter_for_accepted_bills']=int(binascii.hexlify(bytearray(data[3:6])))
@@ -989,7 +989,7 @@ class sas(object):
                 #49
                 cmd=[0x49]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>None):
+                if(data!=None):
                         meters['number_bills_in_stacker']=int(binascii.hexlify(bytearray(data[1:5])))
                         return data
                 return ''
@@ -997,7 +997,7 @@ class sas(object):
                 #4A 
                 cmd=[0x49]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>None):
+                if(data!=None):
                         meters['credits_SAS_in_stacker']=int(binascii.hexlify(bytearray(data[1:5])))
                         return data
                 return ''
@@ -1010,7 +1010,7 @@ class sas(object):
                 cmd=bytearray(cmd)
                 #print str(binascii.hexlify((cmd)))
                 data=self.__send_command(cmd,True, crc_need=True)
-                if(data<>None):
+                if(data!=None):
                         tito_statement['machine_ID']=int(binascii.hexlify(bytearray(data[1:4])))
                         tito_statement['sequence_number']=int(binascii.hexlify(bytearray(data[4:8])))
 
@@ -1026,7 +1026,7 @@ class sas(object):
                 #rint str(binascii.hexlify(bytearray(cmd)))
                 cmd.append((curr_validation_info))
                 data=self.__send_command(cmd,True, crc_need=True)
-                if(data<>None):
+                if(data!=None):
                         tito_statement['validation_type']=int(binascii.hexlify(bytearray(data[1:2])))
                         tito_statement['index_number']=int(binascii.hexlify(bytearray(data[2:3])))
                         tito_statement['date_validation_operation']=str(binascii.hexlify(bytearray(data[3:7])))
@@ -1047,7 +1047,7 @@ class sas(object):
                 cmd=[0x4F]
                 
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>None):
+                if(data!=None):
                         meters['current_hopper_lenght']=int(binascii.hexlify(bytearray(data[1:2])))
                         meters['current_hopper_ststus']=int(binascii.hexlify(bytearray(data[2:3])))
                         meters['current_hopper_percent_full']=int(binascii.hexlify(bytearray(data[3:4])))
@@ -1060,7 +1060,7 @@ class sas(object):
                 cmd=[0x50]
                 cmd.append(type_of_validation)
                 data=self.__send_command(cmd,True, crc_need=True)                
-                if(data<>None):
+                if(data!=None):
                         meters['bin_validation_type']=int(binascii.hexlify(bytearray(data[1])))
                         meters['total_validations']=int(binascii.hexlify(bytearray(data[2:6])))
                         meters['cumulative_amount']=str(binascii.hexlify(bytearray(data[6:])))
@@ -1072,7 +1072,7 @@ class sas(object):
                 cmd=[0x51]
                 cmd.extend(type_of_validation)
                 data=self.__send_command(cmd,True, crc_need=False)                
-                if(data<>None):
+                if(data!=None):
                         meters['total_number_of_games_impemented']=str(binascii.hexlify(bytearray(data[1:])))
  
 
@@ -1085,7 +1085,7 @@ class sas(object):
                 cmd.extend([(n&0xFF), ((n>>8)&0xFF)])
                 
                 data=self.__send_command(cmd,True, crc_need=True)                
-                if(data<>None):
+                if(data!=None):
                         meters['game_n_number']=str(binascii.hexlify(bytearray(data[1:3])))
                         meters['game_n_coin_in_meter']=str(binascii.hexlify(bytearray(data[3:7])))
                         meters['game_n_coin_out_meter']=str(binascii.hexlify(bytearray(data[7:11])))
@@ -1102,7 +1102,7 @@ class sas(object):
                 cmd.extend([(n&0xFF), ((n>>8)&0xFF)])
                 
                 data=self.__send_command(cmd,True, crc_need=True)                
-                if(data<>None):
+                if(data!=None):
                         meters['game_n_number_config']=int(binascii.hexlify(bytearray(data[1:3])))
                         meters['game_n_ASCII_game_ID']=str(binascii.hexlify(bytearray(data[3:5])))
                         meters['game_n_ASCII_additional_id']=str(binascii.hexlify(bytearray(data[5:7])))
@@ -1120,7 +1120,7 @@ class sas(object):
                 cmd=[0x54]
                                 
                 data=self.__send_command(cmd,True, crc_need=False)                
-                if(data<>None):
+                if(data!=None):
                         meters['ASCII_SAS_version']=data[2:5]
                         meters['ASCII_serial_number']=data[5:]
                         return data
@@ -1130,7 +1130,7 @@ class sas(object):
                 cmd=[0x55]
                                 
                 data=self.__send_command(cmd,True, crc_need=False)                
-                if(data<>None):
+                if(data!=None):
                         meters['selected_game_number']=int(binascii.hexlify(bytearray(data[1:])))
                         return data
                 return ''
@@ -1140,7 +1140,7 @@ class sas(object):
                 cmd=[0x56]
                                 
                 data=self.__send_command(cmd,True, crc_need=False)                
-                if(data<>None):
+                if(data!=None):
                         meters['number_of_enabled_games']=int(binascii.hexlify(bytearray(data[2])))
                         meters['enabled_games_numbers']=int(binascii.hexlify(bytearray(data[3:])))
 
@@ -1152,7 +1152,7 @@ class sas(object):
                 cmd=[0x57]
                                 
                 data=self.__send_command(cmd,True, crc_need=False)                
-                if(data<>None):
+                if(data!=None):
                         tito_statement['cashout_type']=int(binascii.hexlify(bytearray(data[1:2])))
                         tito_statement['cashout_amount']=str(binascii.hexlify(bytearray(data[2:])))
 
@@ -1164,9 +1164,9 @@ class sas(object):
                 cmd=[0x58]
                 cmd.append(validationID)
                 cmd.extend(self.bcd_coder_array( valid_number,8))
-                print cmd
+                print(cmd)
                 data=self.__send_command(cmd,True, crc_need=True)                
-                if(data<>None):
+                if(data!=None):
 
                     return data[1]
                 return ''
@@ -1178,7 +1178,7 @@ class sas(object):
                 cmd.extend(self.bcd_coder_array(amount, 4))
                 data=self.__send_command(cmd,True, crc_need=True)
 
-                if(data<>None):
+                if(data!=None):
                         eft_statement['eft_status']=str(binascii.hexlify(bytearray(data[1:])))
                         eft_statement['promo_amount']=str(binascii.hexlify(bytearray(data[4:])))
                        # eft_statement['eft_transfer_counter']=int(binascii.hexlify(bytearray(data[3:4])))
@@ -1193,7 +1193,7 @@ class sas(object):
                 cmd.extend(self.bcd_coder_array(amount, 4))
                 data=self.__send_command(cmd,True, crc_need=True)
 
-                if(data<>None):
+                if(data!=None):
                         meters['eft_status']=str(binascii.hexlify(bytearray(data[1:2])))
                         meters['cashable_amount']=str(binascii.hexlify(bytearray(data[2:5])))
                      
@@ -1205,7 +1205,7 @@ class sas(object):
                 #6A
                 cmd=[0x6A]
                 data=self.__send_command(cmd,True, crc_need=False)
-                if(data<>None):
+                if(data!=None):
                         #meters['number_bills_in_stacker']=int(binascii.hexlify(bytearray(data[1:5])))
                         return data
                 return ''
@@ -1239,7 +1239,7 @@ class sas(object):
                         
 
                 data=self.__send_command(cmd,True, crc_need=True)                
-                if(data<>None):
+                if(data!=None):
 
                     return data[1]
                 return ''
@@ -1252,7 +1252,7 @@ class sas(object):
                 cmd=[0x70]
 
                 data=self.__send_command(cmd,True, crc_need=False)                
-                if(data<>None):
+                if(data!=None):
                         meters['ticket_status']=int(binascii.hexlify(bytearray(data[2:3])))
                         meters['ticket_amount']=str(binascii.hexlify(bytearray(data[3:8])))
                         meters['parsing_code']=int(binascii.hexlify(bytearray(data[8:9])))
@@ -1275,7 +1275,7 @@ class sas(object):
                 cmd[1]=8+13
 
                 data=self.__send_command(cmd,True, crc_need=True)                
-                if(data<>None):
+                if(data!=None):
                         meters['ticket_status']=int(binascii.hexlify(bytearray(data[2:3])))
                         meters['ticket_amount']=int(binascii.hexlify(bytearray(data[3:8])))
                         meters['parsing_code']=int(binascii.hexlify(bytearray(data[8:9])))
@@ -1309,7 +1309,7 @@ class sas(object):
                 cmd[1]=len(transaction_ID)+len(transaction_ID)+53
 
                 data=self.__send_command(cmd,True, crc_need=True)                
-                if(data<>None):
+                if(data!=None):
                         aft_statement['transaction_buffer_position']=int(binascii.hexlify(bytearray(data[2:3])))
                         aft_statement['transfer_status']=int(binascii.hexlify(bytearray(data[3:4])))
                         aft_statement['receipt_status']=int(binascii.hexlify(bytearray(data[4:5])))
@@ -1355,8 +1355,8 @@ class sas(object):
                         cmd.extend(self.bcd_coder_array(POS_ID, 4))
                         cmd[1]=0x1D
                 data=self.__send_command(cmd,True, crc_need=True)
-                if(data<>None):
-                        print len(data)
+                if(data!=None):
+                        print(len(data))
                         aft_statement['registration_status']=(binascii.hexlify((data[2:3])))
                         aft_statement['asset_number']=bytearray(data[3:7])
                         aft_statement['registration_key']=bytearray(data[7:27])
@@ -1373,7 +1373,7 @@ class sas(object):
                 #cmd.addend(0x23)
 
                 data=self.__send_command(cmd,True, crc_need=True)
-                if(data<>None):
+                if(data!=None):
                         aft_statement['asset_number']=str(binascii.hexlify(bytearray(data[2:6])))
                         aft_statement['game_lock_status']=str(binascii.hexlify(bytearray(data[6:7])))
                         aft_statement['avilable_transfers']=str(binascii.hexlify(bytearray(data[7:8])))
@@ -1407,7 +1407,7 @@ class sas(object):
 
 
                 data=self.__send_command(cmd,True, crc_need=True)
-                if(data<>None):
+                if(data!=None):
                         aft_statement['asset_number']=str(binascii.hexlify(bytearray(data[2:6])))
                         aft_statement['status_bits']=str(binascii.hexlify(bytearray(data[6:8])))
                         aft_statement['cashable_ticket_reciept_exp']=str(binascii.hexlify(bytearray(data[8:10])))
@@ -1491,7 +1491,7 @@ class sas(object):
                 cmd.extend(self.bcd_coder_array(game_nimber, 2))
  
                 data=self.__send_command(cmd,True, crc_need=True)
-                if(data<>None):
+                if(data!=None):
                         aft_statement['game_number']=str(binascii.hexlify(bytearray(data[1:3])))
                         aft_statement['features_1']=data[3]
                         aft_statement['features_2']=data[4]
@@ -1596,13 +1596,13 @@ class sas(object):
 
         
 if __name__ =="__main__":
-        print "OK"
+        print("OK")
         sas=sas('/dev/ttyS3')
         #print ( bcd.bcd_to_int(100))
         #print int(bcd.int_to_bcd(0x1467))
         #a=sas.bcd_coder_array(value=100, lenght=10)
         #print ((a))
-        print sas.int_to_bcd(1234567890365421,8)
+        print(sas.int_to_bcd(1234567890365421,8))
         #sas.start()
         #sas.ROM_signature_verification()
         #sas.total_cancelled_credits()
@@ -1928,7 +1928,7 @@ if __name__ =="__main__":
 ##        
         while True:
                 state= binascii.hexlify(bytearray(sas.events_poll()))
-                print state
+                print(state)
                 if (state=='57'):
                         sas.pending_cashout_info()
                         sas.validation_number( validationID=1, valid_number=1234567890365421)
@@ -1945,7 +1945,7 @@ if __name__ =="__main__":
                 
                 time.sleep(1)
 
-        for keys, values in tito_statement.items():
+        for keys, values in list(tito_statement.items()):
                 print(keys)
                 print(values)
         
